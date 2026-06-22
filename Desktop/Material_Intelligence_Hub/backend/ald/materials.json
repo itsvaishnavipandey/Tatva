@@ -1,0 +1,436 @@
+[
+  {
+    "formula": "Al2O3",
+    "name": "Aluminium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 4197
+  },
+  {
+    "formula": "SiO2",
+    "name": "Silicon Dioxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 4143
+  },
+  {
+    "formula": "TiO2",
+    "name": "Titanium Dioxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 35
+  },
+  {
+    "formula": "ZnO",
+    "name": "Zinc Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 35
+  },
+  {
+    "formula": "NiO",
+    "name": "Nickel Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 35
+  },
+  {
+    "formula": "HfO2",
+    "name": "Hafnium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "ZrO2",
+    "name": "Zirconium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "In2O3",
+    "name": "Indium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Ga2O3",
+    "name": "Gallium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "MoO3",
+    "name": "Molybdenum Trioxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "WO3",
+    "name": "Tungsten Trioxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "MgO",
+    "name": "Magnesium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Ta2O5",
+    "name": "Tantalum Pentoxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "La2O3",
+    "name": "Lanthanum Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Y2O3",
+    "name": "Yttrium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "CeO2",
+    "name": "Cerium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Nb2O5",
+    "name": "Niobium Pentoxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Fe2O3",
+    "name": "Iron Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Cr2O3",
+    "name": "Chromium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "V2O5",
+    "name": "Vanadium Pentoxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "BaTiO3",
+    "name": "Barium Titanate",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "SrTiO3",
+    "name": "Strontium Titanate",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "CoO",
+    "name": "Cobalt Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "SnO2",
+    "name": "Tin Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Bi2O3",
+    "name": "Bismuth Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "CuO",
+    "name": "Copper Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Cu2O",
+    "name": "Cuprous Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "IrO2",
+    "name": "Iridium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "RuO2",
+    "name": "Ruthenium Oxide",
+    "material_class": "Oxide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "TiN",
+    "name": "Titanium Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "AlN",
+    "name": "Aluminium Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "GaN",
+    "name": "Gallium Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Si3N4",
+    "name": "Silicon Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "BN",
+    "name": "Boron Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "TaON",
+    "name": "Tantalum Oxynitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Mo2N",
+    "name": "Molybdenum Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "W2N",
+    "name": "Tungsten Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "NbN",
+    "name": "Niobium Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "WN",
+    "name": "Tungsten Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "TaN",
+    "name": "Tantalum Nitride",
+    "material_class": "Nitride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "MoS2",
+    "name": "Molybdenum Disulfide",
+    "material_class": "Sulfide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "WS2",
+    "name": "Tungsten Disulfide",
+    "material_class": "Sulfide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "ZnS",
+    "name": "Zinc Sulfide",
+    "material_class": "Sulfide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "MoSe2",
+    "name": "Molybdenum Diselenide",
+    "material_class": "Sulfide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "WSe2",
+    "name": "Tungsten Diselenide",
+    "material_class": "Sulfide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "In2S3",
+    "name": "Indium Sulfide",
+    "material_class": "Sulfide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "SnS2",
+    "name": "Tin Disulfide",
+    "material_class": "Sulfide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "CuS",
+    "name": "Copper Sulfide",
+    "material_class": "Sulfide",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "MgF2",
+    "name": "Magnesium Fluoride",
+    "material_class": "Fluoride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "CaF2",
+    "name": "Calcium Fluoride",
+    "material_class": "Fluoride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "LiF",
+    "name": "Lithium Fluoride",
+    "material_class": "Fluoride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "AlF3",
+    "name": "Aluminium Fluoride",
+    "material_class": "Fluoride",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Ru",
+    "name": "Ruthenium",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Pt",
+    "name": "Platinum",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Ir",
+    "name": "Iridium",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Co",
+    "name": "Cobalt",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Ni",
+    "name": "Nickel",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Cu",
+    "name": "Copper",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "W",
+    "name": "Tungsten",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Mo",
+    "name": "Molybdenum",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Ta",
+    "name": "Tantalum",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  },
+  {
+    "formula": "Ti",
+    "name": "Titanium",
+    "material_class": "Pure Metal",
+    "process_type": "ALD",
+    "paper_count": 1
+  }
+]

@@ -1,0 +1,417 @@
+{
+  "12": [
+    "toughness",
+    "ablation",
+    "fatigue",
+    "shock loading",
+    "dislocations",
+    "firing",
+    "ductility",
+    "hardness",
+    "in situ",
+    "fracture",
+    "defects",
+    "strength"
+  ],
+  "1": [
+    "In",
+    "Ca",
+    "Eu",
+    "Mo",
+    "Ag",
+    "Ga",
+    "Ge",
+    "Co",
+    "Mn",
+    "Si",
+    "Ar",
+    "La",
+    "Se",
+    "Au"
+  ],
+  "29": [
+    "densification",
+    "sputtering",
+    "annealing",
+    "extrusion"
+  ],
+  "36": [
+    "nucleation & growth",
+    "flux growth"
+  ],
+  "18": [
+    "reactivity",
+    "chemical synthesis",
+    "chemical reaction",
+    "biological synthesis (assembly)",
+    "chemical composition",
+    "gas chromatography",
+    "chemical substitution",
+    "biological synthesis (chemical reaction)"
+  ],
+  "25": [
+    "glass",
+    "blend",
+    "sol-gel",
+    "composite",
+    "polymer"
+  ],
+  "34": [
+    "cold working",
+    "thermodynamics",
+    "hot pressing",
+    "microwave heating",
+    "thermal stresses",
+    "thermally stimulated current",
+    "thermal conductivity",
+    "thermoelectricity",
+    "specific heat",
+    "differential thermal analysis (DTA)",
+    "thermogravimetric analysis (TGA)",
+    "thermal diffusivity",
+    "calorimetry"
+  ],
+  "20": [
+    "responsive",
+    "microscale",
+    "activation analysis",
+    "mesoscale",
+    "multiscale",
+    "shape memory"
+  ],
+  "39": [
+    "nonlinear effects",
+    "nuclear magnetic resonance (NMR)",
+    "spin",
+    "Hall effect",
+    "magnetoresistance (magnetic)",
+    "magnetic properties",
+    "electron spin resonance",
+    "magnetooptic"
+  ],
+  "6": [
+    "Re",
+    "RHEED",
+    "Nb",
+    "Cr",
+    "Tb",
+    "B",
+    "Sb",
+    "C",
+    "H",
+    "F",
+    "Hf",
+    "Yb",
+    "W"
+  ],
+  "23": [
+    "quasicrystal",
+    "grain boundaries",
+    "grain size",
+    "crystal growth",
+    "crystalline",
+    "zone melting",
+    "crystallization"
+  ],
+  "38": [
+    "magnetoresistance (transport)",
+    "dielectric properties",
+    "metal-insulator transition",
+    "electrical properties",
+    "ferroelectricity"
+  ],
+  "21": [
+    "nanostructure",
+    "2D materials",
+    "metamaterial",
+    "macromolecular structure",
+    "nanoscale",
+    "nano-indentation",
+    "crystallographic structure",
+    "microstructure"
+  ],
+  "11": [
+    "bone",
+    "casting",
+    "nitride",
+    "actinide"
+  ],
+  "28": [
+    "additive manufacturing",
+    "thin film",
+    "screen printing",
+    "3D printing",
+    "plating",
+    "ink-jet printing"
+  ],
+  "16": [
+    "combinatorial",
+    "combinatorial synthesis",
+    "interatomic arrangements"
+  ],
+  "43": [
+    "spray deposition",
+    "selective area deposition",
+    "chemical vapor deposition (CVD) (deposition)",
+    "plasma-enhanced CVD (PECVD) (deposition)",
+    "plasma-enhanced CVD (PECVD) (chemical reaction)",
+    "vapor pressure",
+    "atomic layer deposition",
+    "plasma deposition",
+    "chemical vapor deposition (CVD) (chemical reaction)",
+    "atomic layer etching",
+    "lithography (deposition)",
+    "metalorganic deposition",
+    "physical vapor deposition (PVD)",
+    "solution deposition"
+  ],
+  "49": [
+    "electron energy loss spectroscopy (EELS)",
+    "electron microprobe",
+    "scanning transmission electron microscopy (STEM)",
+    "atom probe microscopy",
+    "transmission electron microscopy (TEM)",
+    "scanning probe microscopy (SPM)",
+    "atom probe tomography",
+    "Auger electron spectroscopy (AES)",
+    "scanning electron microscopy (SEM)",
+    "scanning tunneling microscopy (STM)"
+  ],
+  "42": [
+    "molecular beam epitaxy (MBE)",
+    "vapor phase epitaxy (VPE)",
+    "liquid-phase epitaxy (LPE)",
+    "epitaxy"
+  ],
+  "4": [
+    "Zr",
+    "Er",
+    "I",
+    "N",
+    "P",
+    "Ni",
+    "Na",
+    "Sn",
+    "As",
+    "U",
+    "Zn",
+    "S"
+  ],
+  "24": [
+    "phase equilibria",
+    "phase transformation",
+    "second phases"
+  ],
+  "17": [
+    "electromigration",
+    "combustion synthesis",
+    "electrochemical synthesis",
+    "electrodeposition"
+  ],
+  "19": [
+    "biomimetic (chemical reaction)",
+    "self-assembly",
+    "infiltration (chemical reaction)",
+    "cluster assembly",
+    "infiltration (assembly)",
+    "synthetic biology",
+    "biomimetic (assembly)"
+  ],
+  "48": [
+    "x-ray tomography",
+    "x-ray photoelectron spectroscopy (XPS)",
+    "extended x-ray absorption fine structure (EXAFS)",
+    "x-ray reflectivity",
+    "x-ray fluorescence",
+    "x-ray diffraction (XRD)"
+  ],
+  "32": [
+    "intercalation",
+    "embrittlement",
+    "interface",
+    "intercalated"
+  ],
+  "9": [
+    "powder metallurgy",
+    "sintering",
+    "powder processing",
+    "mechanical alloying",
+    "welding",
+    "soldering",
+    "reactive ball milling",
+    "high-entropy alloy"
+  ],
+  "33": [
+    "perovskites",
+    "rare-earths",
+    "clathrates"
+  ],
+  "27": [
+    "solvent casting",
+    "directional solidification",
+    "rapid solidification",
+    "polymerization",
+    "carbonization"
+  ],
+  "31": [
+    "operando",
+    "water",
+    "oxide",
+    "Lanthanide",
+    "fluid",
+    "ethanol",
+    "oxidation"
+  ],
+  "40": [
+    "lithography (removal)",
+    "laser annealing",
+    "laser-induced reaction",
+    "laser ablation",
+    "laser decomposition"
+  ],
+  "5": [
+    "standards",
+    "Li",
+    "Al",
+    "Bi",
+    "Br",
+    "Fe",
+    "van der Waals"
+  ],
+  "46": [
+    "scanning acoustic microscopy (SAM)",
+    "acoustic waves",
+    "acoustic",
+    "acoustic emission"
+  ],
+  "44": [
+    "infrared (IR) spectroscopy",
+    "decoherence",
+    "Raman spectroscopy",
+    "deep level transient spectroscopy (DLTS)",
+    "absorption",
+    "spectroscopy",
+    "surface enhanced Raman spectroscopy (SERS)",
+    "optical properties"
+  ],
+  "3": [
+    "Xe",
+    "Te",
+    "Cd",
+    "Ir",
+    "Pd",
+    "Cu",
+    "Pt",
+    "Ta",
+    "Ti",
+    "Pu",
+    "Ce"
+  ],
+  "22": [
+    "texture",
+    "metrology",
+    "porosity",
+    "tribology",
+    "porosimetry",
+    "metrics",
+    "geologic"
+  ],
+  "47": [
+    "radiation effects",
+    "neutron scattering",
+    "neutron irradiation",
+    "thermionic emission",
+    "field emission",
+    "electron irradiation",
+    "Mössbauer effect"
+  ],
+  "2": [
+    "COVID-19",
+    "II-VI",
+    "V",
+    "III-V"
+  ],
+  "45": [
+    "mechanoluminescence",
+    "photoemission",
+    "photoconductivity",
+    "photoreflectance",
+    "luminescence",
+    "photochemical"
+  ],
+  "37": [
+    "elastic properties",
+    "viscoelasticity",
+    "superplasticity",
+    "diffusion"
+  ],
+  "30": [
+    "additives",
+    "inorganic",
+    "compound",
+    "environmentally benign",
+    "organometallic",
+    "organic"
+  ],
+  "13": [
+    "biomaterial",
+    "tissue",
+    "morphology",
+    "cellular (material type)",
+    "molecular weight"
+  ],
+  "7": [
+    "diamond",
+    "ceramic",
+    "corrosion",
+    "alloy",
+    "steel",
+    "metal",
+    "cement & concrete"
+  ],
+  "35": [
+    "qubit",
+    "quantum surface",
+    "graphene",
+    "nuclear materials",
+    "electronic structure",
+    "quantum materials",
+    "electron-phonon interactions"
+  ],
+  "14": [
+    "piezoresponse",
+    "biological",
+    "biomimetic",
+    "protein",
+    "DNA",
+    "autonomous research"
+  ],
+  "41": [
+    "ion-implantation",
+    "secondary ion mass spectroscopy (SIMS)",
+    "ion-solid interactions",
+    "ion beam analysis",
+    "ion-beam assisted deposition",
+    "focused ion beam (FIB)",
+    "reactive ion etching",
+    "ion-beam processing"
+  ],
+  "26": [
+    "hydrothermal",
+    "hydrogenation",
+    "pyrolysis"
+  ],
+  "15": [
+    "adsorption",
+    "surface reaction",
+    "surface chemistry"
+  ],
+  "10": [
+    "Mg",
+    "twins"
+  ],
+  "8": [
+    "bonding",
+    "adhesion"
+  ]
+}
