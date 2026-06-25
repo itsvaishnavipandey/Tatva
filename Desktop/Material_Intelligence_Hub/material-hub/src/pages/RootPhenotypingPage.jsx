@@ -1,8 +1,11 @@
 import { useState, useRef } from "react";
+import { useTheme } from "../components/Layout";
 
- const FLASK_URL = "http://127.0.0.1:8000";
+const FLASK_URL = "http://127.0.0.1:8000";
 
-export default function RootPhenotypingPage({ isDark, setIsDark }) {
+export default function RootPhenotypingPage() {
+  const { isDark, setIsDark } = useTheme();
+
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [scaleFactor, setScaleFactor] = useState("0.066");
@@ -19,15 +22,13 @@ export default function RootPhenotypingPage({ isDark, setIsDark }) {
   const inputBg        = isDark ? "rgba(0,150,255,0.06)" : "#F8FAFC";
   const cardBg         = isDark
     ? "linear-gradient(145deg,rgba(15,22,35,0.97),rgba(10,15,25,0.99))"
-    : "var(--card-bg)";
-  const pageBg         = isDark ? "#0a0e14" : "var(--bg)";
+    : "#FFFFFF";
+  const pageBg         = isDark ? "#0a0e14" : "#F1F5F9";
   const shadowLg       = isDark
     ? "0 0 60px rgba(0,100,255,0.08)"
     : "0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)";
   const tagBorderColor = isDark ? "rgba(0,200,255,0.4)" : "rgba(37,99,235,0.35)";
-  const headingGrad    = isDark
-    ? "linear-gradient(135deg,#00d4ff 0%,#7b8fff 60%,#a855f7 100%)"
-    : "linear-gradient(135deg,#1E3A8A 0%,#2563EB 60%,#3B82F6 100%)";
+  const headingGrad    ="#FFFFFF"
   const subTextColor   = isDark ? "#7a8a9a" : "#64748B";
   const labelColor     = isDark ? "#3a6a8a" : "#64748B";
   const hintColor      = isDark ? "#2a4a6a" : "#94A3B8";
@@ -48,9 +49,10 @@ export default function RootPhenotypingPage({ isDark, setIsDark }) {
   const metricHdrColor = isDark ? "#00c8ff" : "#2563EB";
   const scaleNoteColor = isDark ? "#2a4a6a" : "#94A3B8";
   const maskHdrColor   = isDark ? "#3a5a7a" : "#64748B";
-  const bottomBarBg    = isDark ? "#0d1117" : "var(--card-bg)";
+  const bottomBarBg    = isDark ? "#0d1117" : "#FFFFFF";
   const bottomBarBorder= isDark ? "rgba(0,200,255,0.08)" : "#E2E8F0";
   const bottomBarText  = isDark ? "#3a4a5a" : "#94A3B8";
+  const mainTextColor  = isDark ? "#F1F5F9" : "#0F172A";
 
   const handleFile = (f) => {
     if (!f) return;
@@ -127,27 +129,45 @@ export default function RootPhenotypingPage({ isDark, setIsDark }) {
 
   return (
     <div style={{
-      height: "100vh", display: "flex", flexDirection: "column",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
       background: pageBg,
       fontFamily: "'Courier New', monospace",
-      color: "var(--text)",
-      overflow: "hidden",
+      color: mainTextColor,
       transition: "background 0.25s ease, color 0.25s ease",
     }}>
 
       {/* ── Main ── */}
-      <div style={{ flex: 1, overflowY: "auto", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "32px 16px", position: "relative" }}>
+      <div style={{
+        flex: 1,
+        overflowY: "auto",
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        padding: "32px 16px",
+        position: "relative",
+      }}>
 
         {/* ambient glow — only in dark */}
         {isDark && (
-          <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: 700, height: 500, background: "radial-gradient(ellipse,rgba(0,80,200,0.1),transparent 70%)", pointerEvents: "none" }} />
+          <div style={{
+            position: "absolute", top: "30%", left: "50%",
+            transform: "translate(-50%,-50%)",
+            width: 700, height: 500,
+            background: "radial-gradient(ellipse,rgba(0,80,200,0.1),transparent 70%)",
+            pointerEvents: "none",
+          }} />
         )}
 
         <div style={{
-          position: "relative", width: 760, maxWidth: "100%",
+          position: "relative",
+          width: 760,
+          maxWidth: "100%",
           background: cardBg,
           border: `1px solid ${borderColor}`,
-          borderRadius: 20, padding: "44px 52px",
+          borderRadius: 20,
+          padding: "44px 52px",
           boxShadow: shadowLg,
           textAlign: "center",
           transition: "background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease",
@@ -160,16 +180,24 @@ export default function RootPhenotypingPage({ isDark, setIsDark }) {
           {/* Tags */}
           <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 24 }}>
             {[
-              { label: "CV ENGINE V4.2",   c: primaryColor,            bg: isDark ? "rgba(0,200,255,0.06)"   : "rgba(37,99,235,0.06)",   b: tagBorderColor },
-              { label: "MORPHOLOGY",       c: isDark ? "#9b8fff" : "#7C3AED", bg: isDark ? "rgba(155,143,255,0.06)" : "rgba(124,58,237,0.06)", b: isDark ? "rgba(155,143,255,0.4)" : "rgba(124,58,237,0.35)" },
-              { label: "SKELETONIZATION",  c: isDark ? "#fff"   : "#1E3A8A", bg: isDark ? "rgba(0,200,255,0.15)"  : "rgba(37,99,235,0.12)",  b: isDark ? "rgba(0,200,255,0.5)"   : "rgba(37,99,235,0.4)" },
+              { label: "CV ENGINE V4.2",  c: primaryColor,                  bg: isDark ? "rgba(0,200,255,0.06)"   : "rgba(37,99,235,0.06)",   b: tagBorderColor },
+              { label: "MORPHOLOGY",      c: isDark ? "#9b8fff" : "#7C3AED", bg: isDark ? "rgba(155,143,255,0.06)" : "rgba(124,58,237,0.06)", b: isDark ? "rgba(155,143,255,0.4)" : "rgba(124,58,237,0.35)" },
+              { label: "SKELETONIZATION", c: isDark ? "#fff"    : "#1E3A8A", bg: isDark ? "rgba(0,200,255,0.15)"  : "rgba(37,99,235,0.12)",  b: isDark ? "rgba(0,200,255,0.5)"   : "rgba(37,99,235,0.4)" },
             ].map(({ label, c, bg, b }) => (
               <div key={label} style={{ padding: "4px 12px", fontSize: 10, letterSpacing: 1.5, borderRadius: 4, border: `1px solid ${b}`, background: bg, color: c }}>{label}</div>
             ))}
           </div>
 
           {/* Heading */}
-          <h1 style={{ fontFamily: "sans-serif", fontSize: 50, fontWeight: 800, letterSpacing: -1, marginBottom: 14, background: headingGrad, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.1 }}>
+          <h1 style={{
+  fontFamily: "sans-serif",
+  fontSize: 50,
+  fontWeight: 800,
+  letterSpacing: -1,
+  marginBottom: 14,
+  color: "#373ae4",   // fixed visible color
+  lineHeight: 1.1,
+}}>
             Root Phenotyping Analyzer
           </h1>
           <p style={{ fontSize: 13, color: subTextColor, lineHeight: 1.7, maxWidth: 500, margin: "0 auto 28px", fontFamily: "sans-serif" }}>
@@ -184,7 +212,15 @@ export default function RootPhenotypingPage({ isDark, setIsDark }) {
               step="0.001"
               value={scaleFactor}
               onChange={(e) => setScaleFactor(e.target.value)}
-              style={{ width: 90, padding: "5px 10px", background: inputBg, border: `1px solid ${borderColor}`, borderRadius: 6, color: primaryColor, fontSize: 12, fontFamily: "'Courier New', monospace", textAlign: "center", outline: "none", transition: "background 0.25s, border-color 0.25s" }}
+              style={{
+                width: 90, padding: "5px 10px",
+                background: inputBg,
+                border: `1px solid ${borderColor}`,
+                borderRadius: 6, color: primaryColor, fontSize: 12,
+                fontFamily: "'Courier New', monospace", textAlign: "center",
+                outline: "none",
+                transition: "background 0.25s, border-color 0.25s",
+              }}
             />
             <span style={{ fontSize: 9, color: hintColor, letterSpacing: 1 }}>DEFAULT: 0.066</span>
           </div>
@@ -205,7 +241,11 @@ export default function RootPhenotypingPage({ isDark, setIsDark }) {
             onDragLeave={() => setDragging(false)}
             onDrop={(e) => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files[0]); }}
           >
-            <input ref={fileInputRef} type="file" accept=".png,.jpg,.jpeg" style={{ display: "none" }} onChange={(e) => handleFile(e.target.files[0])} />
+            <input
+              ref={fileInputRef} type="file" accept=".png,.jpg,.jpeg"
+              style={{ display: "none" }}
+              onChange={(e) => handleFile(e.target.files[0])}
+            />
 
             {!file ? (
               <>
@@ -217,8 +257,14 @@ export default function RootPhenotypingPage({ isDark, setIsDark }) {
             ) : (
               <div onClick={(e) => e.stopPropagation()} style={{ display: "flex", alignItems: "center", gap: 20, justifyContent: "center" }}>
                 <div style={{ position: "relative" }}>
-                  <img src={preview} alt="preview" style={{ maxHeight: 160, maxWidth: 260, borderRadius: 8, border: `1px solid ${borderColor}`, display: "block" }} />
-                  <button onClick={clearFile} style={{ position: "absolute", top: 6, right: 6, background: "rgba(255,60,60,0.85)", border: "none", color: "#fff", borderRadius: "50%", width: 22, height: 22, cursor: "pointer", fontSize: 12, lineHeight: "22px" }}>✕</button>
+                  <img
+                    src={preview} alt="preview"
+                    style={{ maxHeight: 160, maxWidth: 260, borderRadius: 8, border: `1px solid ${borderColor}`, display: "block" }}
+                  />
+                  <button
+                    onClick={clearFile}
+                    style={{ position: "absolute", top: 6, right: 6, background: "rgba(255,60,60,0.85)", border: "none", color: "#fff", borderRadius: "50%", width: 22, height: 22, cursor: "pointer", fontSize: 12, lineHeight: "22px" }}
+                  >✕</button>
                 </div>
                 <div style={{ textAlign: "left" }}>
                   <div style={{ fontSize: 11, color: primaryColor, letterSpacing: 1, marginBottom: 4 }}>{file.name}</div>
@@ -242,7 +288,8 @@ export default function RootPhenotypingPage({ isDark, setIsDark }) {
               cursor: loading || !file ? "not-allowed" : "pointer",
               opacity: loading || !file ? 0.5 : 1,
               boxShadow: btnShadow,
-              fontFamily: "'Courier New', monospace", transition: "all 0.25s",
+              fontFamily: "'Courier New', monospace",
+              transition: "all 0.25s",
             }}
           >
             {loading

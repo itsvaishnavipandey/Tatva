@@ -1,5 +1,5 @@
-
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "../components/Layout";
 
 const BACKEND_URL = "http://127.0.0.1:8000";
 
@@ -120,7 +120,10 @@ function TrendChart({ data, type, isDark }) {
 }
 
 // ─── Main ─
-export default function KeywordTrendPage({ isDark, setIsDark }) {
+export default function KeywordTrendPage() {
+  // ✅ Use shared theme context — same pattern as SpatteringPage
+  const { isDark } = useTheme();
+
   const [keyword,       setKeyword]       = useState("");
   const [granularity,   setGranularity]   = useState(GRANULARITY_OPTIONS[1]);
   const [result,        setResult]        = useState(null);
@@ -196,27 +199,28 @@ export default function KeywordTrendPage({ isDark, setIsDark }) {
 
   const online = backendStatus === "online";
 
-  // ── Theme tokens ────
-  const pageBg         = isDark ? "#050c1a"   : "var(--bg)";
+  // ── Theme tokens ── (light values now actually used when isDark=false)
+  const pageBg         = isDark ? "#050c1a"   : "#F1F5F9";
   const sidebarBg      = isDark ? "#070f1e"   : "linear-gradient(180deg, #1E3A8A 0%, #1e40af 60%, #2563EB 100%)";
   const sidebarBorder  = isDark ? "rgba(0,245,255,0.07)" : "rgba(37,99,235,0.0)";
-  const cardBg         = isDark ? "#080f1e"   : "var(--card-bg)";
+  const cardBg         = isDark ? "#080f1e"   : "#FFFFFF";
   const cardBorder     = isDark ? "rgba(0,245,255,0.07)" : "#E2E8F0";
   const primaryColor   = isDark ? "#00F5FF"   : "#2563EB";
   const accentColor    = isDark ? "#7C5CFF"   : "#6366F1";
 
-  const labelColor     = isDark ? "#8899aa"   : "rgba(255,255,255,0.55)";
-  const dividerColor   = isDark ? "rgba(0,245,255,0.06)" : "rgba(255,255,255,0.12)";
-  const inputBg        = isDark ? "rgba(0,245,255,0.03)" : "rgba(255,255,255,0.15)";
-  const inputBorder    = isDark ? "rgba(0,245,255,0.15)" : "rgba(255,255,255,0.25)";
+  const labelColor     = isDark ? "#8899aa"   : "rgba(255,255,255,0.65)";
+  const dividerColor   = isDark ? "rgba(0,245,255,0.06)" : "rgba(255,255,255,0.15)";
+  const inputBg        = isDark ? "rgba(0,245,255,0.03)" : "rgba(255,255,255,0.18)";
+  const inputBorder    = isDark ? "rgba(0,245,255,0.15)" : "rgba(255,255,255,0.30)";
   const inputColor     = isDark ? "#e2e8f0"   : "#ffffff";
-  const selectBg       = isDark ? "#0b1324"   : "rgba(255,255,255,0.12)";
-  const selectBorder   = isDark ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.2)";
-  const hintColor      = isDark ? "#4a5568"   : "rgba(255,255,255,0.45)";
-  const btnBg          = isDark ? "linear-gradient(90deg, rgba(0,245,255,0.1), rgba(124,92,255,0.1))" : "rgba(255,255,255,0.18)";
-  const btnBorder      = isDark ? "rgba(0,245,255,0.25)" : "rgba(255,255,255,0.45)";
+  const selectBg       = isDark ? "#0b1324"   : "rgba(255,255,255,0.15)";
+  const selectBorder   = isDark ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.25)";
+  const hintColor      = isDark ? "#4a5568"   : "rgba(255,255,255,0.50)";
+  const btnBg          = isDark ? "linear-gradient(90deg, rgba(0,245,255,0.1), rgba(124,92,255,0.1))" : "rgba(255,255,255,0.22)";
+  const btnBorder      = isDark ? "rgba(0,245,255,0.25)" : "rgba(255,255,255,0.50)";
   const btnColor       = isDark ? "#00F5FF"   : "#ffffff";
-  const heroBg         = isDark ? "linear-gradient(160deg, #08111f 0%, #050c1a 100%)" : "linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #3B82F6 100%)";
+  const heroBg =
+  "linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #3B82F6 100%)";
   const heroBorder     = isDark ? "rgba(0,245,255,0.06)" : "transparent";
   const heroTag        = isDark ? "#00F5FF"   : "rgba(255,255,255,0.75)";
   const heroGrad       = isDark
@@ -241,8 +245,8 @@ export default function KeywordTrendPage({ isDark, setIsDark }) {
   const pillInactiveBdr= isDark ? "rgba(255,255,255,0.07)" : "#E2E8F0";
   const pillColor      = isDark ? "#94a3b8"   : "#64748B";
   const emptyColor     = isDark ? "#4a5568"   : "#94A3B8";
-  const activeKwBg     = isDark ? "rgba(0,245,255,0.07)"  : "rgba(255,255,255,0.15)";
-  const activeKwBdr    = isDark ? "rgba(0,245,255,0.18)"  : "rgba(255,255,255,0.35)";
+  const activeKwBg     = isDark ? "rgba(0,245,255,0.07)"  : "rgba(255,255,255,0.18)";
+  const activeKwBdr    = isDark ? "rgba(0,245,255,0.18)"  : "rgba(255,255,255,0.40)";
   const sectionHdrSub  = isDark ? "#64748b"   : "#94A3B8";
 
   const onlineGreenBg  = isDark ? "rgba(74,222,128,0.05)"  : "rgba(255,255,255,0.12)";
@@ -254,8 +258,12 @@ export default function KeywordTrendPage({ isDark, setIsDark }) {
   const onlineTxtColor = isDark ? "#86efac" : "rgba(255,255,255,0.85)";
   const offlineTxtColor= isDark ? "#fca5a5" : "rgba(255,255,255,0.75)";
 
+  // Stat card text colors for light mode
+  const statLabelColor = isDark ? "#94A3B8" : "#64748B";
+  const statValueColor = isDark ? "#FFFFFF"  : "#0F172A";
+
   return (
-    <div style={{ minHeight: "100vh", background: pageBg, color: isDark ? "#e2e8f0" : "var(--text)", display: "flex", fontFamily: "'IBM Plex Mono', 'Courier New', monospace", transition: "background 0.25s ease, color 0.25s ease" }}>
+    <div style={{ minHeight: "100vh", background: pageBg, color: isDark ? "#e2e8f0" : "#0F172A", display: "flex", fontFamily: "'IBM Plex Mono', 'Courier New', monospace", transition: "background 0.25s ease, color 0.25s ease" }}>
 
       {/* ── SIDEBAR ── */}
       <aside style={{ width: 280, minWidth: 280, background: sidebarBg, borderRight: `1px solid ${sidebarBorder}`, padding: "22px 16px", display: "flex", flexDirection: "column", gap: 14, height: "100vh", position: "sticky", top: 0, overflowY: "auto", transition: "background 0.25s ease, border-color 0.25s ease" }}>
@@ -330,7 +338,6 @@ export default function KeywordTrendPage({ isDark, setIsDark }) {
             <div style={{ height: 1, background: dividerColor }} />
             <div>
               <div style={{ color: labelColor, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 7 }}>Active Keyword</div>
-              {/* FIXED: Font color explicitly locked to clear high-contrast white for visibility inside sidebar box */}
               <div style={{ padding: "8px 12px", borderRadius: 8, background: activeKwBg, border: `1px solid ${activeKwBdr}`, color: "#ffffff", fontSize: 12, wordBreak: "break-all", fontWeight: 600 }}>{result.keyword}</div>
             </div>
           </>
@@ -342,6 +349,7 @@ export default function KeywordTrendPage({ isDark, setIsDark }) {
 
         {/* Hero */}
         <div style={{ borderRadius: 18, padding: "30px 34px", background: heroBg, border: `1px solid ${heroBorder}`, position: "relative", overflow: "hidden", transition: "background 0.25s ease" }}>
+          {/* Light mode dot grid decoration */}
           {!isDark && (
             <div style={{ position: "absolute", top: 16, right: 28, pointerEvents: "none", opacity: 0.45 }}>
               {Array.from({ length: 8 }).map((_, ri) => (
@@ -357,7 +365,14 @@ export default function KeywordTrendPage({ isDark, setIsDark }) {
             <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,245,255,0.04), transparent 70%)", pointerEvents: "none" }} />
           )}
           <div style={{ fontSize: 10, letterSpacing: 3, color: heroTag, textTransform: "uppercase", marginBottom: 10, opacity: 0.7 }}>Research Intelligence Platform</div>
-          <h1 style={{ margin: 0, fontSize: 36, fontWeight: 900, letterSpacing: -1, lineHeight: 1.1, background: heroGrad, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h1 style={{
+  margin: 0,
+  fontSize: 36,
+  fontWeight: 900,
+  letterSpacing: -1,
+  lineHeight: 1.1,
+  color: "#FFFFFF"
+}}>
             KEYWORD TREND<br />ANALYTICS
           </h1>
           <p style={{ color: heroSub, fontSize: 13, margin: "10px 0 0", letterSpacing: 0.3 }}>Semantic trend discovery · Technology evolution · Research intelligence</p>
@@ -375,7 +390,7 @@ export default function KeywordTrendPage({ isDark, setIsDark }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
             {[
               { label: "Matched Keyword", value: result?.keyword || "—", small: true, isYellow: true },
-              { label: "Total Papers",      value: totalPapers.toLocaleString(), isYellow: true },
+              { label: "Total Papers",    value: totalPapers.toLocaleString(), isYellow: true },
               { label: "Peak Year",       value: peakEntry ? peakEntry.year : "—", isYellow: true },
               { label: "Peak Count",      value: peakEntry ? peakEntry.count.toLocaleString() : "—", isYellow: true },
               { label: "Latest Year",     value: latestEntry ? latestEntry.year : "—", isYellow: true },
@@ -386,14 +401,12 @@ export default function KeywordTrendPage({ isDark, setIsDark }) {
               },
             ].map(({ label, value, small, color, isYellow }) => (
               <div key={label} style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 14, padding: "14px 16px", transition: "background 0.25s, border-color 0.25s" }}>
-
-                <div style={{ color: isDark ? "#94A3B8" : "#64748B", fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 7 }}>{label}</div>
-                
-                <div style={{ 
-                  fontWeight: 700, 
-                  fontSize: small ? 12 : 20, 
-                  color: isYellow ? "#ffca2c" : (color || (isDark ? "#FFFFFF" : "#0F172A")), 
-                  wordBreak: "break-word" 
+                <div style={{ color: statLabelColor, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 7 }}>{label}</div>
+                <div style={{
+                  fontWeight: 700,
+                  fontSize: small ? 12 : 20,
+                  color: isYellow ? "#ffca2c" : (color || statValueColor),
+                  wordBreak: "break-word"
                 }}>
                   {value}
                 </div>
@@ -494,7 +507,7 @@ export default function KeywordTrendPage({ isDark, setIsDark }) {
 
       <style>{`
         * { box-sizing: border-box; }
-        input::placeholder { color: ${isDark ? "#4a5568" : "rgba(255,255,255,0.45)"}; }
+        input::placeholder { color: ${isDark ? "#4a5568" : "rgba(255,255,255,0.50)"}; }
         select option { background: ${isDark ? "#0b1324" : "#FFFFFF"}; color: ${isDark ? "#e2e8f0" : "#0F172A"}; }
       `}</style>
     </div>
