@@ -1,17 +1,3 @@
-"""
-optical_model.py
-
-Trains and serves ALL FOUR models benchmarked in models.ipynb:
-  - xgboost        : XGBRegressor
-  - histgb         : HistGradientBoostingRegressor
-  - neural_net     : MLPRegressor   (this was the only one the old version trained)
-  - random_forest  : RandomForestRegressor
-
-All four are trained on the same feature set (x_val + deposition params +
-element fractions + en/an) and the same target (y_val), exactly like the
-notebook. 10-fold CV metrics (MAE, MSE, RMSE, R2, MAPE, Explained Variance)
-are computed for each so the frontend can render a comparison chart.
-"""
 
 import pandas as pd
 import numpy as np
@@ -25,9 +11,6 @@ from xgboost import XGBRegressor
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ==========================================
-# FEATURE DEFINITION (unchanged — matches models.ipynb column slicing)
-# ==========================================
 
 PARAM_COLS = ["dep_temp", "anneal_temp", "anneal_time", "thickness", "temp", "pressure"]
 
@@ -41,9 +24,6 @@ ELEMENT_COLS = [
 
 FEATURE_COLS = ["x_val"] + PARAM_COLS + ELEMENT_COLS + ["en", "an"]
 
-# ==========================================
-# MODEL REGISTRY  (hyperparameters copied straight from models.ipynb)
-# ==========================================
 
 MODEL_LABELS = {
     "xgboost":       "XGBoost",
@@ -153,6 +133,18 @@ def _build_row(features: dict):
     return imputer.transform(df)
 
 
+def _build_batch(base_features: dict, x_values: list) -> np.ndarray:
+    """Build a 2-D feature matrix for a list of x_val values, keeping all
+    other features constant (same material, same deposition params, etc.)."""
+    rows = []
+    for xv in x_values:
+        row = {col: float(base_features.get(col, 0) or 0) for col in feature_columns}
+        row["x_val"] = float(xv)
+        rows.append(row)
+    df = pd.DataFrame(rows, columns=feature_columns)
+    return imputer.transform(df)
+
+
 def predict_optical(features: dict, model_name: str = "neural_net") -> float:
     """Predict using a single named model (xgboost | histgb | neural_net | random_forest)."""
     if not is_ready:
@@ -174,6 +166,69 @@ def predict_optical_all(features: dict) -> dict:
     return {
         name: float(est.predict(X_imputed)[0])
         for name, est in models.items()
+    }
+
+
+def predict_optical_range(
+    base_features: dict,
+    x_start: float,
+    x_end: float,
+    x_step: float,
+    model_names: list = None,
+) -> dict:
+    """
+    Predict refractive index across a spectral range for one or more models.
+
+    Returns:
+        {
+          "x_values": [500, 510, 520, ...],
+          "predictions": {
+              "xgboost":       [n_500, n_510, ...],
+              "histgb":        [...],
+              "neural_net":    [...],
+              "random_forest": [...],
+          }
+        }
+    Only the model_names requested are included in predictions.
+    """
+    if not is_ready:
+        raise RuntimeError("Optical models are still training on the backend. Try again in a moment.")
+
+    if model_names is None:
+        model_names = list(models.keys())
+
+    # Validate
+    for name in model_names:
+        if name not in models:
+            raise RuntimeError(f"Unknown model '{name}'. Available: {list(models.keys())}")
+
+    # Build x_values list
+    x_values = []
+    current = x_start
+    while current <= x_end + 1e-9:
+        x_values.append(round(current, 6))
+        current += x_step
+    if len(x_values) == 0:
+        raise ValueError("Range produced no data points. Check start/end/step values.")
+    if len(x_values) > 2000:
+        raise ValueError(f"Too many data points ({len(x_values)}). Reduce range or increase step (max 2000).")
+
+    # Build batch feature matrix
+    X_batch = _build_batch(base_features, x_values)
+
+    # Run all requested models on the batch
+    predictions = {}
+    for name in model_names:
+        try:
+            preds = models[name].predict(X_batch)
+            predictions[name] = [round(float(v), 8) for v in preds]
+        except Exception as e:
+            print(f"⚠️  Batch prediction failed for {name}: {e}")
+            predictions[name] = [None] * len(x_values)
+
+    return {
+        "x_values":    [round(float(x), 4) for x in x_values],
+        "predictions": predictions,
     }
 
 

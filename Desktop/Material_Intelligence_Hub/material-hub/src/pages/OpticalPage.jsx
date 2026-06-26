@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme } from "../components/Layout";
 
 const PARAM_COLS = [
@@ -26,10 +26,10 @@ const PRESETS = [
 ];
 
 const MODELS = [
-  { key: "xgboost",       label: "XGBoost",               short: "XGB" },
-  { key: "histgb",        label: "HistGradient Boosting",  short: "HGB" },
-  { key: "neural_net",    label: "Neural Network (MLP)",   short: "MLP" },
-  { key: "random_forest", label: "Random Forest",          short: "RF"  },
+  { key: "xgboost",       label: "XGBoost",               short: "XGB", color: "#6366f1" },
+  { key: "histgb",        label: "HistGradient Boosting",  short: "HGB", color: "#06b6d4" },
+  { key: "neural_net",    label: "Neural Network (MLP)",   short: "MLP", color: "#10b981" },
+  { key: "random_forest", label: "Random Forest",          short: "RF",  color: "#f59e0b" },
 ];
 
 const API_BASE = "http://localhost:8000";
@@ -43,12 +43,119 @@ function buildFeatureDict(xVal, params, elements, en, an) {
   return feat;
 }
 
+// ── Simple SVG line chart component ──────────────────────────────────────────
+function RangeChart({ rangeResult, isDark, models }) {
+  if (!rangeResult || !rangeResult.x_values || rangeResult.x_values.length === 0) return null;
+
+  const W = 760, H = 280, PAD = { top: 16, right: 20, bottom: 44, left: 58 };
+  const plotW = W - PAD.left - PAD.right;
+  const plotH = H - PAD.top - PAD.bottom;
+
+  const xs = rangeResult.x_values;
+  const xMin = xs[0], xMax = xs[xs.length - 1];
+
+  // Collect all y values across all models for y-axis scaling
+  let allY = [];
+  MODELS.forEach(({ key }) => {
+    const series = rangeResult.predictions?.[key];
+    if (series) allY = allY.concat(series.filter(v => v !== null && !isNaN(v)));
+  });
+  if (allY.length === 0) return null;
+  const yMin = Math.min(...allY), yMax = Math.max(...allY);
+  const yPad = (yMax - yMin) * 0.08 || 0.05;
+  const yLo = yMin - yPad, yHi = yMax + yPad;
+
+  const xScale = (v) => PAD.left + ((v - xMin) / (xMax - xMin || 1)) * plotW;
+  const yScale = (v) => PAD.top + plotH - ((v - yLo) / (yHi - yLo || 1)) * plotH;
+
+  // Grid lines
+  const yTicks = 5;
+  const gridLines = Array.from({ length: yTicks + 1 }, (_, i) => {
+    const val = yLo + (i / yTicks) * (yHi - yLo);
+    return { val, y: yScale(val) };
+  });
+
+  const xTicks = Math.min(8, xs.length);
+  const xTickIndices = Array.from({ length: xTicks }, (_, i) =>
+    Math.round((i / (xTicks - 1)) * (xs.length - 1))
+  );
+
+  const gridColor = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
+  const axisColor = isDark ? "rgba(255,255,255,0.20)" : "rgba(0,0,0,0.18)";
+  const textColor = isDark ? "rgba(255,255,255,0.45)" : "#64748b";
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+      {/* Grid lines */}
+      {gridLines.map(({ val, y }, i) => (
+        <g key={i}>
+          <line x1={PAD.left} y1={y} x2={W - PAD.right} y2={y} stroke={gridColor} strokeWidth={1} />
+          <text x={PAD.left - 7} y={y + 4} textAnchor="end" fontSize={10} fill={textColor}>
+            {val.toFixed(3)}
+          </text>
+        </g>
+      ))}
+
+      {/* X ticks */}
+      {xTickIndices.map((idx, i) => {
+        const xv = xs[idx];
+        const sx = xScale(xv);
+        return (
+          <g key={i}>
+            <line x1={sx} y1={PAD.top} x2={sx} y2={H - PAD.bottom} stroke={gridColor} strokeWidth={1} />
+            <text x={sx} y={H - PAD.bottom + 14} textAnchor="middle" fontSize={10} fill={textColor}>
+              {xv}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* Axes */}
+      <line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={H - PAD.bottom} stroke={axisColor} strokeWidth={1.5} />
+      <line x1={PAD.left} y1={H - PAD.bottom} x2={W - PAD.right} y2={H - PAD.bottom} stroke={axisColor} strokeWidth={1.5} />
+
+      {/* Axis labels */}
+      <text x={W / 2} y={H - 4} textAnchor="middle" fontSize={11} fill={textColor}>Wavelength (nm)</text>
+      <text x={14} y={H / 2} textAnchor="middle" fontSize={11} fill={textColor}
+        transform={`rotate(-90, 14, ${H / 2})`}>Refractive Index (n)</text>
+
+      {/* Model lines */}
+      {MODELS.map(({ key, color }) => {
+        const series = rangeResult.predictions?.[key];
+        if (!series) return null;
+        const points = xs.map((x, i) => {
+          const y = series[i];
+          if (y === null || isNaN(y)) return null;
+          return `${xScale(x).toFixed(1)},${yScale(y).toFixed(1)}`;
+        }).filter(Boolean);
+        if (points.length < 2) return null;
+        return (
+          <polyline
+            key={key}
+            points={points.join(" ")}
+            fill="none"
+            stroke={color}
+            strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            opacity={0.9}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
 export default function OpticalPage() {
-  // ── Pull theme from context (same pattern as SpatteringPage) ──────────────
   const { isDark } = useTheme();
 
-  const [xVal,     setXVal]     = useState("550");
-  const [unit,     setUnit]     = useState("nm");
+  // ── Spectral range inputs ─────────────────────────────────────────────────
+  const [rangeMode,  setRangeMode]  = useState(true);   // always range now
+  const [xStart,     setXStart]     = useState("500");
+  const [xEnd,       setXEnd]       = useState("1000");
+  const [xStep,      setXStep]      = useState("10");
+  const [unit,       setUnit]       = useState("nm");
+
   const [params,   setParams]   = useState(
     Object.fromEntries(PARAM_COLS.map(({ key, default: d }) => [key, String(d)]))
   );
@@ -58,9 +165,8 @@ export default function OpticalPage() {
   const [en,       setEn]       = useState("1.5");
   const [an,       setAn]       = useState("10.0");
 
-  const [selectedModel,   setSelectedModel]   = useState("all");
-  const [result,          setResult]          = useState(null);
-  const [allResult,       setAllResult]       = useState(null);
+  const [selectedModels,  setSelectedModels]  = useState(["xgboost", "histgb", "neural_net", "random_forest"]);
+  const [rangeResult,     setRangeResult]     = useState(null);
   const [modelMetrics,    setModelMetrics]    = useState(null);
   const [metricsLoading,  setMetricsLoading]  = useState(true);
   const [metricsError,    setMetricsError]    = useState("");
@@ -68,6 +174,8 @@ export default function OpticalPage() {
   const [loading,         setLoading]         = useState(false);
   const [error,           setError]           = useState("");
   const [activeTab,       setActiveTab]       = useState("params");
+  const [tablePage,       setTablePage]       = useState(0);
+  const TABLE_PAGE_SIZE = 50;
 
   // ── Poll backend until models finish training ─────────────────────────────
   useEffect(() => {
@@ -101,17 +209,15 @@ export default function OpticalPage() {
     return () => { cancelled = true; clearInterval(pollId); };
   }, []);
 
-  // ── Theme tokens — all derived from isDark ────────────────────────────────
+  // ── Theme tokens ──────────────────────────────────────────────────────────
   const pageBg          = isDark ? "#050c1a"   : "#F1F5F9";
   const cardBg          = isDark ? "#080f1e"   : "#FFFFFF";
   const cardBorder      = isDark ? "rgba(0,245,255,0.07)"    : "#E2E8F0";
-   const heroBg =
-  "linear-gradient(135deg,#1E3A8A 0%,#2563EB 55%,#3B82F6 100%)";
+  const heroBg          = "linear-gradient(135deg,#1E3A8A 0%,#2563EB 55%,#3B82F6 100%)";
   const heroBorder      = isDark ? "rgba(0,245,255,0.06)"    : "transparent";
   const heroGlowBg      = isDark
     ? "radial-gradient(circle, rgba(0,245,255,0.04), transparent 70%)"
     : "radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%)";
-  const heroTitleGrad   = isDark ? null : "#FFFFFF";
   const heroSubColor    = isDark ? "#64748b"   : "rgba(255,255,255,0.75)";
 
   const accentColor     = isDark ? "#7c3aed"   : "#4F46E5";
@@ -179,6 +285,11 @@ export default function OpticalPage() {
     ? "linear-gradient(90deg,#00F5FF,#7C5CFF)"
     : "linear-gradient(90deg,#1E3A8A,#2563EB)";
 
+  const tableBorderColor = isDark ? "rgba(255,255,255,0.08)" : "#E2E8F0";
+  const tableHeaderBg    = isDark ? "rgba(255,255,255,0.04)" : "#F8FAFC";
+  const tableRowEvenBg   = isDark ? "rgba(255,255,255,0.02)" : "#FAFBFE";
+  const tableTextColor   = isDark ? "#e2e8f0" : "#0F172A";
+
   const cardStyle = {
     background:   cardBg,
     border:       `1px solid ${cardBorder}`,
@@ -196,28 +307,50 @@ export default function OpticalPage() {
     setAn(String(preset.an));
   };
 
+  const toggleModel = (key) => {
+    setSelectedModels((prev) =>
+      prev.includes(key) ? (prev.length > 1 ? prev.filter((k) => k !== key) : prev) : [...prev, key]
+    );
+  };
+
+  const validateRange = () => {
+    const start = parseFloat(xStart);
+    const end   = parseFloat(xEnd);
+    const step  = parseFloat(xStep);
+    if (isNaN(start) || isNaN(end) || isNaN(step)) return "Please enter valid numbers for Start, End, and Step.";
+    if (start >= end) return "Start must be less than End.";
+    if (step <= 0)    return "Step must be greater than 0.";
+    const numPoints = Math.floor((end - start) / step) + 1;
+    if (numPoints > 2000) return `Too many points (${numPoints}). Reduce range or increase step to stay under 2000 points.`;
+    if (numPoints < 2)    return "Range must produce at least 2 data points.";
+    return null;
+  };
+
   const handlePredict = async () => {
-    setLoading(true); setError(""); setResult(null); setAllResult(null);
+    const validationError = validateRange();
+    if (validationError) { setError(validationError); return; }
+
+    setLoading(true); setError(""); setRangeResult(null); setTablePage(0);
     try {
       const sanitizedParams   = Object.fromEntries(Object.entries(params).map(([k, v]) => [k, parseFloat(v) || 0]));
       const sanitizedElements = Object.fromEntries(Object.entries(elements).map(([k, v]) => [k, parseFloat(v) || 0]));
-      const features = buildFeatureDict(
-        parseFloat(xVal) || 0, sanitizedParams, sanitizedElements,
-        parseFloat(en) || 0, parseFloat(an) || 0
-      );
-      const res  = await fetch(`${API_BASE}/api/optical/predict`, {
+      const baseFeatures = buildFeatureDict(0, sanitizedParams, sanitizedElements, parseFloat(en) || 0, parseFloat(an) || 0);
+
+      const res  = await fetch(`${API_BASE}/api/optical/predict/range`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ features, model: selectedModel }),
+        body: JSON.stringify({
+          base_features: baseFeatures,
+          x_start:  parseFloat(xStart),
+          x_end:    parseFloat(xEnd),
+          x_step:   parseFloat(xStep),
+          models:   selectedModels,
+        }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Prediction failed");
-      if (selectedModel === "all") {
-        setAllResult(data);
-        if (data.metrics) setModelMetrics(data.metrics);
-      } else {
-        setResult(data.predicted_y);
-      }
+      if (!res.ok) throw new Error(data.detail || "Range prediction failed");
+      setRangeResult(data);
+      if (data.metrics) setModelMetrics(data.metrics);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -225,11 +358,43 @@ export default function OpticalPage() {
     }
   };
 
+  // ── CSV export ────────────────────────────────────────────────────────────
+  const exportCSV = () => {
+    if (!rangeResult) return;
+    const { x_values, predictions } = rangeResult;
+    const activeModelKeys = MODELS.filter(m => predictions[m.key]).map(m => m.key);
+    const header = ["x_val (nm)", ...activeModelKeys.map(k => {
+      const m = MODELS.find(m => m.key === k);
+      return `n_${m.short}`;
+    })].join(",");
+    const rows = x_values.map((x, i) => {
+      const vals = activeModelKeys.map(k => {
+        const v = predictions[k]?.[i];
+        return (v !== null && v !== undefined && !isNaN(v)) ? v.toFixed(6) : "";
+      });
+      return [x, ...vals].join(",");
+    });
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = `refractive_index_${xStart}-${xEnd}nm.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  };
+
   const totalFraction = ELEMENT_COLS.reduce((s, el) => s + (parseFloat(elements[el]) || 0), 0);
   const fractionOk    = Math.abs(totalFraction - 1.0) < 0.01 || totalFraction === 0;
   const maxR2         = modelMetrics
     ? Math.max(...Object.values(modelMetrics).map((m) => (m && typeof m.r2 === "number") ? m.r2 : 0), 0.0001)
     : 1;
+
+  // Table pagination
+  const tableRows     = rangeResult?.x_values ?? [];
+  const totalPages    = Math.ceil(tableRows.length / TABLE_PAGE_SIZE);
+  const pagedRows     = tableRows.slice(tablePage * TABLE_PAGE_SIZE, (tablePage + 1) * TABLE_PAGE_SIZE);
+  const activeModelKeys = rangeResult
+    ? MODELS.filter(m => rangeResult.predictions?.[m.key]).map(m => m.key)
+    : [];
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -250,8 +415,6 @@ export default function OpticalPage() {
         transition: "background 0.25s ease",
       }}>
         <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: heroGlowBg, pointerEvents: "none" }} />
-
-        {/* Light-mode dot grid decoration */}
         {!isDark && (
           <div style={{ position: "absolute", top: 16, right: 28, pointerEvents: "none", opacity: 0.4 }}>
             {Array.from({ length: 7 }).map((_, ri) => (
@@ -263,34 +426,25 @@ export default function OpticalPage() {
             ))}
           </div>
         )}
-
-        <h1
-  style={{
-    margin: 0,
-    fontSize: 36,
-    fontWeight: 900,
-    letterSpacing: -1,
-    lineHeight: 1.1,
-    color: isDark ? "#FFFFFF" : "#FFFFFF", // always visible
-    textShadow: isDark
-      ? "0 0 12px rgba(255,255,255,0.15)"
-      : "none",
-  }}
->
+        <h1 style={{
+          margin: 0, fontSize: 36, fontWeight: 900, letterSpacing: -1, lineHeight: 1.1,
+          color: "#FFFFFF",
+          textShadow: isDark ? "0 0 12px rgba(255,255,255,0.15)" : "none",
+        }}>
           OPTICAL PROPERTY<br />PREDICTOR
         </h1>
         <p style={{ color: heroSubColor, fontSize: 13, marginTop: 10, marginBottom: 0 }}>
-          ENAN Dataset · Refractive Index Prediction · 4-Model Benchmark
+          ENAN Dataset · Refractive Index Prediction · 4-Model Benchmark · Spectral Range Mode
         </p>
       </div>
 
       <div style={{ maxWidth: 896, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
 
-        {/* ── X Value ─────────────────────────────────────────────────────── */}
+        {/* ── Spectral Range Input ─────────────────────────────────────── */}
         <div style={cardStyle}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <h2 style={{ fontSize: 11, fontWeight: 600, color: sectionLabel, textTransform: "uppercase", letterSpacing: "0.15em", margin: 0 }}>
-              Spectral Input (x_val)
+              Spectral Range (x_val)
             </h2>
             <div style={{ display: "flex", gap: 4, background: unitToggleBg, borderRadius: 8, padding: 4, fontSize: 12 }}>
               {["nm", "ev"].map((u) => (
@@ -306,21 +460,49 @@ export default function OpticalPage() {
               ))}
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <input
-              type="number" value={xVal} onChange={(e) => setXVal(e.target.value)}
-              style={{
-                flex: 1, background: inputBg, border: `1px solid ${inputBorder}`,
-                borderRadius: 12, padding: "12px 16px", fontSize: 24,
-                fontFamily: "inherit", color: inputColor, outline: "none",
-                transition: "background 0.25s, border-color 0.25s, color 0.25s",
-              }}
-            />
-            <span style={{ color: tabInactiveCol, fontSize: 14 }}>{unit}</span>
+
+          {/* Range inputs row */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 10 }}>
+            {[
+              { label: "Start", val: xStart, setter: setXStart, hint: "e.g. 200" },
+              { label: "End",   val: xEnd,   setter: setXEnd,   hint: "e.g. 1000" },
+              { label: "Step",  val: xStep,  setter: setXStep,  hint: "e.g. 10" },
+            ].map(({ label, val, setter, hint }) => (
+              <div key={label}>
+                <label style={{ display: "block", fontSize: 11, color: labelColor, marginBottom: 5, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  {label} <span style={{ color: labelUnitColor }}>({unit})</span>
+                </label>
+                <input
+                  type="number" value={val} onChange={(e) => setter(e.target.value)}
+                  placeholder={hint}
+                  style={{
+                    width: "100%", background: inputBg, border: `1px solid ${inputBorder}`,
+                    borderRadius: 10, padding: "10px 14px", fontSize: 20,
+                    fontFamily: "inherit", color: inputColor, outline: "none", boxSizing: "border-box",
+                    transition: "background 0.25s, border-color 0.25s, color 0.25s",
+                  }}
+                />
+              </div>
+            ))}
           </div>
-          <p style={{ marginTop: 8, fontSize: 12, color: hintColor, marginBottom: 0 }}>
-            Typical range: 200–1000 nm · or 1–6 eV. Enter raw numeric value (e.g. 550 nm = 550.0).
-          </p>
+
+          {/* Live preview */}
+          {(() => {
+            const s = parseFloat(xStart), e = parseFloat(xEnd), st = parseFloat(xStep);
+            if (!isNaN(s) && !isNaN(e) && !isNaN(st) && s < e && st > 0) {
+              const n = Math.floor((e - s) / st) + 1;
+              const pts = Math.min(4, n);
+              const preview = Array.from({ length: pts }, (_, i) => (s + i * st).toFixed(1)).join(", ");
+              const suffix  = n > pts ? `, … , ${e}` : "";
+              return (
+                <p style={{ margin: 0, fontSize: 12, color: hintColor }}>
+                  → {n} points: {preview}{suffix}
+                  {n > 2000 && <span style={{ color: fractionWarnText }}> ⚠ Too many points (max 2000)</span>}
+                </p>
+              );
+            }
+            return <p style={{ margin: 0, fontSize: 12, color: hintColor }}>Enter start, end, and step to preview.</p>;
+          })()}
         </div>
 
         {/* ── Presets ──────────────────────────────────────────────────────── */}
@@ -459,34 +641,40 @@ export default function OpticalPage() {
           </div>
         </div>
 
-        {/* ── Model Selector ────────────────────────────────────────────────── */}
+        {/* ── Model Selector (multi-select toggle) ─────────────────────────── */}
         <div style={cardStyle}>
           <h2 style={{ fontSize: 11, fontWeight: 600, color: sectionLabel, textTransform: "uppercase", letterSpacing: "0.15em", margin: "0 0 14px" }}>
-            Model
+            Models to Compare
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
-            {[{ key: "all", label: "Compare All", short: "ALL" }, ...MODELS].map((m) => (
-              <button
-                key={m.key}
-                onClick={() => setSelectedModel(m.key)}
-                title={m.label}
-                style={{
-                  padding: "10px 8px", borderRadius: 10, cursor: "pointer", fontFamily: "inherit",
-                  fontSize: 12, fontWeight: 600, textAlign: "center",
-                  border:      selectedModel === m.key ? `1px solid ${accentBorder}` : `1px solid ${presetBorder}`,
-                  background:  selectedModel === m.key ? accentActive : presetBg,
-                  color:       selectedModel === m.key ? accentText   : presetColor,
-                  transition:  "all 0.2s",
-                }}
-              >
-                {m.short}
-              </button>
-            ))}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+            {MODELS.map((m) => {
+              const active = selectedModels.includes(m.key);
+              return (
+                <button
+                  key={m.key}
+                  onClick={() => toggleModel(m.key)}
+                  title={m.label}
+                  style={{
+                    padding: "10px 8px", borderRadius: 10, cursor: "pointer", fontFamily: "inherit",
+                    fontSize: 12, fontWeight: 600, textAlign: "center",
+                    border:     active ? `1px solid ${m.color}` : `1px solid ${presetBorder}`,
+                    background: active ? `${m.color}22` : presetBg,
+                    color:      active ? m.color : presetColor,
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <span style={{ display: "block", fontSize: 15, marginBottom: 2 }}>
+                    {active ? "✓" : "○"}
+                  </span>
+                  {m.short}
+                </button>
+              );
+            })}
           </div>
           <p style={{ marginTop: 10, fontSize: 12, color: hintColor, marginBottom: 0 }}>
-            {selectedModel === "all"
-              ? "Runs all 4 models and shows every prediction side by side."
-              : `Predicting with ${MODELS.find((m) => m.key === selectedModel)?.label}.`}
+            {selectedModels.length === 4
+              ? "All 4 models will be run across the full spectral range."
+              : `${selectedModels.length} model(s) selected: ${selectedModels.map(k => MODELS.find(m=>m.key===k)?.short).join(", ")}`}
           </p>
         </div>
 
@@ -496,8 +684,7 @@ export default function OpticalPage() {
             background: accentDim, border: `1px solid ${accentBorder}`,
             borderRadius: 12, padding: 16, color: accentText, fontSize: 14,
           }}>
-            ⏳ The 4 optical models are training on the backend (10-fold CV — this can take a minute or two
-            on first start). This page will activate automatically once they're ready.
+            ⏳ The 4 optical models are training on the backend (10-fold CV — this can take a minute or two on first start). This page will activate automatically once they're ready.
           </div>
         )}
 
@@ -521,45 +708,171 @@ export default function OpticalPage() {
             fontFamily: "inherit", boxShadow: btnShadow, transition: "all 0.2s",
           }}
         >
-          {modelsTraining ? "⏳ Models Training…" : loading ? "⏳ Running Model..." : "⚡ Predict Optical Property"}
+          {modelsTraining
+            ? "⏳ Models Training…"
+            : loading
+            ? "⏳ Computing Spectral Range…"
+            : `⚡ Predict n(λ) from ${xStart} → ${xEnd} ${unit}`}
         </button>
 
-        {/* ── Single-Model Result ───────────────────────────────────────────── */}
-        {result !== null && selectedModel !== "all" && (
-          <div style={{
-            background: resultBg, border: `1px solid ${resultBorder}`,
-            borderRadius: 18, padding: 30, textAlign: "center", marginTop: 4,
-            transition: "background 0.25s, border-color 0.25s",
-          }}>
-            <div style={{ color: resultLabel, fontSize: 11, letterSpacing: 2, textTransform: "uppercase", marginBottom: 12 }}>
-              Predicted Refractive Index · {MODELS.find((m) => m.key === selectedModel)?.label}
+        {/* ── Range Results ─────────────────────────────────────────────────── */}
+        {rangeResult && (
+          <>
+            {/* Summary stats row */}
+            <div style={{ display: "grid", gridTemplateColumns: `repeat(${activeModelKeys.length}, 1fr)`, gap: 12 }}>
+              {activeModelKeys.map((key) => {
+                const m    = MODELS.find(m => m.key === key);
+                const vals = rangeResult.predictions[key]?.filter(v => v !== null && !isNaN(v)) ?? [];
+                const mn   = vals.length ? Math.min(...vals) : null;
+                const mx   = vals.length ? Math.max(...vals) : null;
+                const avg  = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+                return (
+                  <div key={key} style={{
+                    background: resultBg, border: `1px solid ${m.color}33`,
+                    borderRadius: 14, padding: "16px 14px", textAlign: "center",
+                    transition: "background 0.25s, border-color 0.25s",
+                  }}>
+                    <div style={{ color: m.color, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6, fontWeight: 700 }}>
+                      {m.label}
+                    </div>
+                    <div style={{ fontSize: 11, color: resultLabel, marginBottom: 4 }}>
+                      {rangeResult.x_values.length} points · {xStart}–{xEnd} {unit}
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "center", gap: 12, fontSize: 12, marginTop: 8 }}>
+                      {[["min", mn], ["avg", avg], ["max", mx]].map(([lbl, v]) => (
+                        <div key={lbl} style={{ textAlign: "center" }}>
+                          <div style={{ color: resultLabel, fontSize: 10, marginBottom: 2 }}>{lbl}</div>
+                          <div style={{ fontWeight: 700, color: m.color }}>{v !== null ? v.toFixed(4) : "—"}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <div style={{ fontSize: 64, fontWeight: 900, background: resultGrad, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              {result.toFixed(5)}
-            </div>
-          </div>
-        )}
 
-        {/* ── All-Models Result ─────────────────────────────────────────────── */}
-        {allResult && allResult.predictions && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginTop: 4 }}>
-            {MODELS.map((m) => (
-              <div key={m.key} style={{
-                background: resultBg, border: `1px solid ${resultBorder}`,
-                borderRadius: 14, padding: "18px 14px", textAlign: "center",
-                transition: "background 0.25s, border-color 0.25s",
-              }}>
-                <div style={{ color: resultLabel, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>
-                  {m.label}
-                </div>
-                <div style={{ fontSize: 26, fontWeight: 800, background: resultGrad, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                  {typeof allResult.predictions[m.key] === "number"
-                    ? allResult.predictions[m.key].toFixed(5)
-                    : "—"}
+            {/* Chart */}
+            <div style={{ ...cardStyle, padding: "20px 16px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <h2 style={{ fontSize: 11, fontWeight: 600, color: sectionLabel, textTransform: "uppercase", letterSpacing: "0.15em", margin: 0 }}>
+                  n(λ) Spectral Plot
+                </h2>
+                <div style={{ display: "flex", gap: 14 }}>
+                  {activeModelKeys.map(key => {
+                    const m = MODELS.find(m => m.key === key);
+                    return (
+                      <span key={key} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: m.color }}>
+                        <span style={{ display: "inline-block", width: 20, height: 2.5, background: m.color, borderRadius: 2 }} />
+                        {m.short}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
-          </div>
+              <RangeChart rangeResult={rangeResult} isDark={isDark} models={MODELS} />
+            </div>
+
+            {/* Table */}
+            <div style={cardStyle}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <h2 style={{ fontSize: 11, fontWeight: 600, color: sectionLabel, textTransform: "uppercase", letterSpacing: "0.15em", margin: 0 }}>
+                  Data Table · {rangeResult.x_values.length} rows
+                </h2>
+                <button
+                  onClick={exportCSV}
+                  style={{
+                    padding: "6px 14px", borderRadius: 8,
+                    border: `1px solid ${accentBorder}`, background: accentDim,
+                    color: accentText, fontSize: 12, fontWeight: 600,
+                    cursor: "pointer", fontFamily: "inherit",
+                  }}
+                >
+                  ↓ Export CSV
+                </button>
+              </div>
+
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ background: tableHeaderBg }}>
+                      <th style={{ padding: "8px 12px", textAlign: "left", color: sectionLabel, borderBottom: `1px solid ${tableBorderColor}`, fontWeight: 600, fontSize: 11 }}>
+                        λ ({unit})
+                      </th>
+                      {activeModelKeys.map(key => {
+                        const m = MODELS.find(m => m.key === key);
+                        return (
+                          <th key={key} style={{ padding: "8px 12px", textAlign: "right", color: m.color, borderBottom: `1px solid ${tableBorderColor}`, fontWeight: 600, fontSize: 11 }}>
+                            n · {m.short}
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pagedRows.map((x, localIdx) => {
+                      const globalIdx = tablePage * TABLE_PAGE_SIZE + localIdx;
+                      return (
+                        <tr key={x} style={{ background: localIdx % 2 === 0 ? "transparent" : tableRowEvenBg }}>
+                          <td style={{ padding: "6px 12px", color: optAccentColor, borderBottom: `1px solid ${tableBorderColor}`, fontWeight: 600 }}>
+                            {x}
+                          </td>
+                          {activeModelKeys.map(key => {
+                            const v = rangeResult.predictions[key]?.[globalIdx];
+                            const valid = v !== null && v !== undefined && !isNaN(v);
+                            return (
+                              <td key={key} style={{ padding: "6px 12px", textAlign: "right", color: valid ? tableTextColor : errorColor, borderBottom: `1px solid ${tableBorderColor}` }}>
+                                {valid ? v.toFixed(6) : "—"}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, fontSize: 12 }}>
+                  <span style={{ color: hintColor }}>
+                    Rows {tablePage * TABLE_PAGE_SIZE + 1}–{Math.min((tablePage + 1) * TABLE_PAGE_SIZE, tableRows.length)} of {tableRows.length}
+                  </span>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button onClick={() => setTablePage(0)} disabled={tablePage === 0}
+                      style={{ padding: "4px 10px", borderRadius: 6, border: `1px solid ${presetBorder}`, background: presetBg, color: presetColor, cursor: tablePage === 0 ? "not-allowed" : "pointer", opacity: tablePage === 0 ? 0.4 : 1, fontFamily: "inherit", fontSize: 11 }}>
+                      ««
+                    </button>
+                    <button onClick={() => setTablePage(p => Math.max(0, p - 1))} disabled={tablePage === 0}
+                      style={{ padding: "4px 10px", borderRadius: 6, border: `1px solid ${presetBorder}`, background: presetBg, color: presetColor, cursor: tablePage === 0 ? "not-allowed" : "pointer", opacity: tablePage === 0 ? 0.4 : 1, fontFamily: "inherit", fontSize: 11 }}>
+                      ‹
+                    </button>
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      const pg = Math.max(0, Math.min(totalPages - 5, tablePage - 2)) + i;
+                      return (
+                        <button key={pg} onClick={() => setTablePage(pg)}
+                          style={{ padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, cursor: "pointer",
+                            border: pg === tablePage ? `1px solid ${accentBorder}` : `1px solid ${presetBorder}`,
+                            background: pg === tablePage ? accentDim : presetBg,
+                            color:      pg === tablePage ? accentText : presetColor,
+                          }}>
+                          {pg + 1}
+                        </button>
+                      );
+                    })}
+                    <button onClick={() => setTablePage(p => Math.min(totalPages - 1, p + 1))} disabled={tablePage === totalPages - 1}
+                      style={{ padding: "4px 10px", borderRadius: 6, border: `1px solid ${presetBorder}`, background: presetBg, color: presetColor, cursor: tablePage === totalPages - 1 ? "not-allowed" : "pointer", opacity: tablePage === totalPages - 1 ? 0.4 : 1, fontFamily: "inherit", fontSize: 11 }}>
+                      ›
+                    </button>
+                    <button onClick={() => setTablePage(totalPages - 1)} disabled={tablePage === totalPages - 1}
+                      style={{ padding: "4px 10px", borderRadius: 6, border: `1px solid ${presetBorder}`, background: presetBg, color: presetColor, cursor: tablePage === totalPages - 1 ? "not-allowed" : "pointer", opacity: tablePage === totalPages - 1 ? 0.4 : 1, fontFamily: "inherit", fontSize: 11 }}>
+                      »»
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         )}
 
         {/* ── Model Comparison Chart ────────────────────────────────────────── */}
@@ -584,7 +897,7 @@ export default function OpticalPage() {
                 return (
                   <div key={m.key}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 12 }}>
-                      <span style={{ color: labelColor, fontWeight: 600 }}>{m.label}</span>
+                      <span style={{ color: m.color, fontWeight: 600 }}>{m.label}</span>
                       <span style={{ color: optAccentColor }}>
                         R² {md && typeof md.r2   === "number" ? md.r2.toFixed(3)   : "—"}
                         {"  ·  "}MAE  {md && typeof md.mae  === "number" ? md.mae.toFixed(3)  : "—"}
@@ -595,8 +908,8 @@ export default function OpticalPage() {
                     <div style={{ height: 10, borderRadius: 6, background: barTrackBg, overflow: "hidden" }}>
                       <div style={{
                         height: "100%", width: `${widthPct}%`,
-                        background: barFillGrad, borderRadius: 6,
-                        transition: "width 0.4s ease",
+                        background: `linear-gradient(90deg, ${m.color}99, ${m.color})`,
+                        borderRadius: 6, transition: "width 0.4s ease",
                       }} />
                     </div>
                   </div>

@@ -16,6 +16,7 @@ from optical.optical_model import (
     train_optical_model,
     predict_optical,
     predict_optical_all,
+    predict_optical_range,
     get_model_metrics,
     models_ready,
 )
@@ -223,6 +224,24 @@ class RCRequest(BaseModel):
 class OpticalPredictRequest(BaseModel):
     features: dict
     model: str = "neural_net"   # "xgboost" | "histgb" | "neural_net" | "random_forest" | "all"
+
+class OpticalRangeRequest(BaseModel):
+    """
+    Predict refractive index for a spectral range.
+
+    base_features : dict  — all feature values EXCEPT x_val (same as the
+                            single-point /predict endpoint, just omit x_val or
+                            set it to anything — it will be overwritten).
+    x_start       : float — start of spectral range (e.g. 500 nm)
+    x_end         : float — end   of spectral range (e.g. 1000 nm)
+    x_step        : float — step size               (e.g. 10 nm)
+    models        : list  — which models to run; defaults to all four
+    """
+    base_features: dict
+    x_start: float
+    x_end:   float
+    x_step:  float = 10.0
+    models:  list  = ["xgboost", "histgb", "neural_net", "random_forest"]
 
 # ==========================================
 # COLUMN CANDIDATE LISTS
@@ -636,6 +655,57 @@ async def optical_predict(data: OpticalPredictRequest):
             }
         result = predict_optical(data.features, data.model)
         return {"predicted_y": result, "model": data.model}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/optical/predict/range")
+async def optical_predict_range(data: OpticalRangeRequest):
+    """
+    Predict refractive index across a spectral range for one or more models.
+
+    Request body:
+        base_features : dict   — material + deposition params (x_val is ignored / overwritten)
+        x_start       : float  — e.g. 500
+        x_end         : float  — e.g. 1000
+        x_step        : float  — e.g. 10  (default)
+        models        : list   — subset of ["xgboost","histgb","neural_net","random_forest"]
+
+    Response:
+        {
+          "x_values":    [500, 510, 520, ...],
+          "predictions": {
+              "xgboost":    [n_500, n_510, ...],
+              "histgb":     [...],
+              ...
+          },
+          "metrics": { ... }   // CV metrics for each model
+        }
+    """
+    if not models_ready():
+        raise HTTPException(status_code=503, detail="Optical models are still training. Try again shortly.")
+    try:
+        # Basic guard-rails (duplicate the frontend validation server-side)
+        if data.x_start >= data.x_end:
+            raise HTTPException(400, "x_start must be less than x_end.")
+        if data.x_step <= 0:
+            raise HTTPException(400, "x_step must be greater than 0.")
+
+        result = predict_optical_range(
+            base_features=data.base_features,
+            x_start=data.x_start,
+            x_end=data.x_end,
+            x_step=data.x_step,
+            model_names=data.models,
+        )
+        return {
+            **result,
+            "metrics": get_model_metrics(),
+        }
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
